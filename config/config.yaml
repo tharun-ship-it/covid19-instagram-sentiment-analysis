@@ -1,0 +1,335 @@
+# COVID-19 Instagram Sentiment Analysis Configuration
+# ====================================================
+# 
+# This configuration file controls all aspects of the sentiment analysis
+# pipeline including data loading, preprocessing, model parameters, and
+# visualization settings.
+#
+# Author: Tharun Ponnam
+# Project: Five Years of COVID-19 Discourse on Instagram
+
+# =============================================================================
+# Data Configuration
+# =============================================================================
+data:
+  # Primary data source
+  source: 'data/instagram_covid19_posts.csv'
+  
+  # Alternative data sources
+  zenodo_url: 'https://zenodo.org/records/13896353'
+  ieee_url: 'https://ieee-dataport.org/documents/five-years-covid-19-discourse-instagram-labeled-instagram-dataset-over-half-million-posts'
+  
+  # Column mappings
+  columns:
+    text: 'text'
+    timestamp: 'timestamp'
+    language: 'language'
+    post_id: 'post_id'
+    engagement: 'engagement_score'
+    hashtags: 'hashtags'
+    emoji_count: 'emoji_count'
+  
+  # Data loading options
+  encoding: 'utf-8'
+  date_format: '%Y-%m-%d %H:%M:%S'
+  sample_size: null  # Set to integer for sampling (e.g., 10000)
+  random_state: 42
+  
+  # Validation
+  required_columns:
+    - 'text'
+    - 'timestamp'
+  
+  # Train/test split
+  test_size: 0.2
+  stratify_column: 'sentiment_label'
+
+# =============================================================================
+# Text Preprocessing Configuration
+# =============================================================================
+preprocessing:
+  # Text cleaning
+  lowercase: true
+  remove_urls: true
+  remove_emails: true
+  remove_mentions: true
+  remove_numbers: false
+  remove_punctuation: false
+  
+  # Feature preservation
+  preserve_hashtags: true
+  preserve_emojis: true
+  extract_features: true
+  
+  # COVID-19 specific
+  preserve_covid_terms: true
+  covid_terms:
+    - 'covid'
+    - 'covid19'
+    - 'coronavirus'
+    - 'pandemic'
+    - 'vaccine'
+    - 'vaccination'
+    - 'lockdown'
+    - 'quarantine'
+    - 'mask'
+    - 'social distancing'
+    - 'delta'
+    - 'omicron'
+    - 'booster'
+    - 'pfizer'
+    - 'moderna'
+    - 'astrazeneca'
+  
+  # Tokenization
+  tokenizer: 'nltk'  # 'nltk', 'spacy', or 'simple'
+  
+  # Stopword removal
+  remove_stopwords: true
+  stopword_language: 'english'
+  custom_stopwords:
+    - 'http'
+    - 'https'
+    - 'www'
+    - 'com'
+    - 'ig'
+    - 'instagram'
+  
+  # Lemmatization/Stemming
+  use_lemmatization: true
+  use_stemming: false
+  
+  # Length filtering
+  min_word_length: 2
+  max_word_length: 50
+  min_text_length: 10
+
+# =============================================================================
+# Sentiment Analysis Configuration
+# =============================================================================
+sentiment:
+  # Analyzer type
+  analyzer: 'vader'  # 'vader', 'textblob', or 'custom'
+  
+  # Classification thresholds
+  thresholds:
+    positive: 0.05
+    negative: -0.05
+  
+  # VADER specific settings
+  vader:
+    use_custom_lexicon: true
+    custom_lexicon:
+      # COVID-19 positive terms
+      vaccine: 1.5
+      vaccinated: 1.5
+      immunity: 1.0
+      recovery: 2.0
+      recovered: 2.0
+      hope: 2.0
+      hopeful: 2.0
+      grateful: 2.5
+      thankful: 2.5
+      hero: 2.5
+      heroes: 2.5
+      frontline: 1.5
+      essential: 1.0
+      safe: 1.5
+      healthy: 2.0
+      together: 1.0
+      community: 1.0
+      support: 1.5
+      strong: 1.5
+      
+      # COVID-19 negative terms
+      death: -3.0
+      deaths: -3.0
+      died: -3.0
+      dying: -3.0
+      fear: -2.0
+      scared: -2.0
+      anxiety: -2.0
+      anxious: -2.0
+      lockdown: -1.5
+      quarantine: -1.0
+      isolation: -1.5
+      isolated: -1.5
+      crisis: -2.0
+      outbreak: -1.5
+      spread: -1.0
+      infected: -1.5
+      infection: -1.5
+      hospitalized: -2.0
+      icu: -2.5
+      ventilator: -2.5
+      unemployment: -2.0
+      jobless: -2.0
+      
+      # Neutral/mixed terms (context-dependent)
+      mask: 0.0
+      pandemic: -0.5
+      covid: 0.0
+      coronavirus: -0.5
+  
+  # Batch processing
+  batch_size: 1000
+  show_progress: true
+  
+  # Confidence scoring
+  calculate_confidence: true
+  confidence_method: 'entropy'  # 'entropy' or 'margin'
+
+# =============================================================================
+# Multilingual Support
+# =============================================================================
+multilingual:
+  enabled: true
+  detect_language: true
+  
+  # Supported languages (ISO 639-1 codes)
+  supported_languages:
+    - 'en'  # English
+    - 'es'  # Spanish
+    - 'pt'  # Portuguese
+    - 'fr'  # French
+    - 'de'  # German
+    - 'it'  # Italian
+    - 'nl'  # Dutch
+    - 'hi'  # Hindi
+    - 'ar'  # Arabic
+    - 'id'  # Indonesian
+    - 'tr'  # Turkish
+    - 'ru'  # Russian
+    - 'ja'  # Japanese
+    - 'ko'  # Korean
+    - 'zh'  # Chinese
+  
+  # Language detection settings
+  detection_confidence_threshold: 0.8
+  fallback_language: 'en'
+
+# =============================================================================
+# Temporal Analysis Configuration
+# =============================================================================
+temporal:
+  # Time granularities
+  granularities:
+    - 'daily'
+    - 'weekly'
+    - 'monthly'
+  
+  # COVID-19 milestone dates
+  milestones:
+    who_pandemic_declaration: '2020-03-11'
+    us_emergency_declaration: '2020-03-13'
+    first_lockdowns: '2020-03-15'
+    pfizer_vaccine_approval: '2020-12-11'
+    moderna_vaccine_approval: '2020-12-18'
+    delta_variant_detected: '2021-05-01'
+    omicron_variant_detected: '2021-11-24'
+    who_emergency_ends: '2023-05-05'
+  
+  # Rolling window analysis
+  rolling_window: 7  # days
+  
+  # Peak detection
+  detect_peaks: true
+  peak_prominence: 0.1
+
+# =============================================================================
+# Visualization Configuration
+# =============================================================================
+visualization:
+  # Figure settings
+  figure_size:
+    default: [12, 8]
+    wide: [16, 8]
+    square: [10, 10]
+    dashboard: [20, 16]
+  
+  dpi: 150
+  
+  # Style
+  style: 'seaborn-v0_8-whitegrid'
+  
+  # Color scheme
+  colors:
+    positive: '#2ecc71'
+    negative: '#e74c3c'
+    neutral: '#95a5a6'
+    primary: '#3498db'
+    secondary: '#9b59b6'
+    background: '#ffffff'
+    text: '#2c3e50'
+  
+  # Color palettes
+  palettes:
+    sentiment: ['#e74c3c', '#95a5a6', '#2ecc71']
+    categorical: ['#3498db', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6', '#1abc9c']
+    sequential: 'Blues'
+    diverging: 'RdYlGn'
+  
+  # Font settings
+  fonts:
+    family: 'DejaVu Sans'
+    title_size: 16
+    label_size: 12
+    tick_size: 10
+    legend_size: 10
+  
+  # Output settings
+  output_dir: 'assets/figures'
+  formats: ['png', 'pdf']
+  transparent: false
+  
+  # Word cloud settings
+  wordcloud:
+    max_words: 200
+    background_color: 'white'
+    colormap: 'viridis'
+    min_font_size: 8
+    max_font_size: 100
+
+# =============================================================================
+# Logging Configuration
+# =============================================================================
+logging:
+  level: 'INFO'  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+  file: 'logs/analysis.log'
+  console: true
+
+# =============================================================================
+# Output Configuration
+# =============================================================================
+output:
+  # Results directory
+  results_dir: 'results'
+  
+  # Export formats
+  export_formats:
+    - 'csv'
+    - 'json'
+  
+  # Report generation
+  generate_report: true
+  report_format: 'html'  # 'html', 'pdf', or 'markdown'
+  
+  # Model checkpoints
+  save_models: true
+  models_dir: 'models'
+
+# =============================================================================
+# Performance Configuration
+# =============================================================================
+performance:
+  # Parallel processing
+  n_jobs: -1  # -1 for all cores
+  
+  # Memory management
+  chunk_size: 10000
+  use_memory_mapping: true
+  
+  # Caching
+  enable_cache: true
+  cache_dir: '.cache'
